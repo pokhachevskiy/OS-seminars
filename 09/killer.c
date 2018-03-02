@@ -9,55 +9,31 @@
 
 int main(void)
 {
-    
-    int msqid;
-    char pathname[]="09.c";
-    key_t  key;
-    int i,len;
+  int msqid;
+  char pathname[]="/tmp/server";
+  key_t  key;
+  int i,len;
 
-
-
-    struct mymsgbuf
-    {
-       long mtype;
-       double number;
-       long pid;
-    } mybuf;
-    /* Create or attach message queue  */
-    
-    key = ftok(pathname, 0);
-    
-    if ((msqid = msgget(key, 0666 | IPC_CREAT)) < 0){
-       printf("Can\'t get msqid\n");
-       exit(-1);
-    }
-
-
-    /* Send information */
-    
-    //for (i = 1; i <= 5; i++){
-     
-     mybuf.mtype = 2;
-
-
-     len = sizeof(mybuf);
-     
-     if (msgsnd(msqid, (struct msgbuf *) &mybuf, len, 0) < 0){
-       printf("Can\'t send message to queue\n");
-       msgctl(msqid, IPC_RMID, (struct msqid_ds *) NULL);
-       exit(-1);
-     }
-
-    /* Send the last message */   
-       
-    // mybuf.mtype = LAST_MESSAGE;   
-    // len         = 0;   
-       
-    // if (msgsnd(msqid, (struct msgbuf *) &mybuf, len, 0) < 0){
-    //    printf("Can\'t send message to queue\n");
-    //    msgctl(msqid, IPC_RMID, (struct msqid_ds *) NULL);
-    //    exit(-1);
-    // }
-
-    return 0;    
+  struct mymsgbuf{
+    long mtype;
+    double number;
+    long pid;
+  } mybuf;
+  /* Attach message queue  */
+  
+  key = ftok(pathname, 0);
+  
+  if ((msqid = msgget(key, 0666)) < 0){
+    printf("Can\'t get msqid\n");
+    exit(-1);
+  }
+  mybuf.mtype = 2;
+  len = sizeof(mybuf);
+   
+  if (msgsnd(msqid, (struct msgbuf *) &mybuf, len, 0) < 0){
+    printf("Can\'t send message to queue\n");
+    msgctl(msqid, IPC_RMID, (struct msqid_ds *) NULL);
+    exit(-1);
+  }
+  return 0;    
 }
