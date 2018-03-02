@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <string.h>
@@ -14,14 +15,21 @@ int main(void)
   char pathname[]="/tmp/server";
   key_t  key;
   int i,len;
+  int fd;
 
+  
   struct mymsgbuf {
     long mtype;
     double number;
     long pid;
   } mybuf;
   /* Attach message queue  */
-  
+  if ((fd = open(pathname, O_EXCL | O_CREAT, 0)) < 0) {
+    printf ("Can't create ruling file!\n");
+    exit(-1);
+  }
+
+
   key = ftok(pathname, 0);
   
   if ((msqid = msgget(key, 0666 | IPC_CREAT | IPC_EXCL)) < 0){
@@ -44,6 +52,7 @@ int main(void)
     if (mybuf.mtype == 2){
       printf("I'm closing\n");
       msgctl(msqid, IPC_RMID, (struct msqid_ds *) NULL);
+      execl("/bin/rm", "rm", "-f", pathname, NULL);
       exit(-1);
     }
 
@@ -57,6 +66,6 @@ int main(void)
       exit(-1);
     }
   }
-  
+
   return 0;    
 }
