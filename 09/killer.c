@@ -10,7 +10,7 @@
 int main(void)
 {
   int msqid;
-  char pathname[]="/tmp/server";
+  char pathname[]="/tmp/server0";
   key_t  key;
   int i,len;
 
