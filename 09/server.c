@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     printf ("Can't allocate memory for semaphores \n");
     exit (-1);
   }
-
+  printf("%li \n", s[0]);
   key = (key_t*)calloc(numberOfSemaphores, sizeof(key_t));
   if (!key) {
     printf ("Can't allocate memory for keys\n");
@@ -42,12 +42,13 @@ int main(int argc, char* argv[])
     long init;
     long sNum;
     long pid;
-  } mysem;
+  } mysem1, mysem;
   /* Attach message queue  */
-  if ((fd = open(pathname, O_EXCL | O_CREAT, 0)) < 0) {
+  if ((fd = open(pathname, O_EXCL | O_CREAT, 0666)) < 0) {
     printf ("Can't create ruling file!\n");
     exit(-1);
   }
+  close(fd);
 
   for (i = 0; i < numberOfSemaphores; i++){
     sprintf(name, "%s%d", pathname, i);
@@ -61,16 +62,19 @@ int main(int argc, char* argv[])
   printf ("after ftoks\n");
   /* Send information */
   while (1){
+
     int maxlen = sizeof(mysem);
 
     //FIFO 
     for (i = 0; i < numberOfSemaphores; i++) {
+      // printf("%li \n", s[0]);
 
       if (( len = msgrcv(msqid[i], (struct msgbuf *) &mysem, maxlen, 0, 0)) < 0){
 
        printf("Can\'t receive message from queue %d \n", len);
        exit(-1);
       }
+      //printf("%li \n", s[0]);
       // killer option.
       if (mysem.optype == 2){
         printf("I'm closing\n");
@@ -81,7 +85,8 @@ int main(int argc, char* argv[])
 
       if (mysem.optype == 'i') {
         printf("initialization process, sNum = %li init = %li \n", mysem.sNum, mysem.init);
-        s[mysem.sNum] = mysem.init;
+        s[i] = mysem.init;
+        // printf("before %d \n", i);
       }
 
       if (mysem.optype == 'p') {
@@ -97,13 +102,13 @@ int main(int argc, char* argv[])
       if (mysem.optype == 'v') {
         printf("v process, sNum = %li pid = %li \n", mysem.sNum, mysem.pid);
         mysem.optype = mysem.pid;
-        s += 1;
+        s[i] += 1;
       }
 
-
-      if (msgsnd(msqid[i], (struct msgbuf *) &mysem, len, 0) < 0){
+      printf("before msg snd %d \n", i);
+      if (msgsnd(msqid[mysem.sNum], (struct msgbuf *) &mysem, len, 0) < 0){
         printf("Can\'t send message to queue\n");
-        msgctl(msqid[i], IPC_RMID, (struct msqid_ds *) NULL);
+        msgctl(msqid[mysem.sNum], IPC_RMID, (struct msqid_ds *) NULL);
         exit(-1);
       }
     }

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const long N = 1;
+const long N = 2;
 
 int main(void)
 {
@@ -31,10 +31,13 @@ int main(void)
     printf ("Can't allocate memory for keys\n");
     exit (-1);
   }
+  
   if ((fd = open(pathname, O_RDONLY, 0)) < 0) {
     printf ("Can't find cooperator\n");
     exit(-1);
   }
+  close(fd); 
+
   for (i = 0; i < N; i++){
     sprintf(name, "%s%d", pathname, i);
 
@@ -59,11 +62,12 @@ int main(void)
     msgctl(msqid[0], IPC_RMID, (struct msqid_ds *) NULL);
     exit(-1);
   }
-
+  
   if (( len = msgrcv(msqid[0], (struct msgbuf *) &mysem, maxlen, mysem.pid, 0)) < 0){
     printf("Can\'t receive message from queue %d \n", len);
     exit(-1);
   }
+
   //semaphore eat
   mysem.optype = 'i';
   mysem.sNum = 1;
@@ -75,12 +79,20 @@ int main(void)
     msgctl(msqid[1], IPC_RMID, (struct msqid_ds *) NULL);
     exit(-1);
   }
-
+  printf("before rcv %d \n", i);
   if (( len = msgrcv(msqid[1], (struct msgbuf *) &mysem, maxlen, mysem.pid, 0)) < 0){
     printf("Can\'t receive message from queue %d \n", len);
     exit(-1);
   }
   // end of initialization
+  
+  /*if ((chpid = fork()) > 0) {
+
+
+  }*/
+
+
+
 
   while(1){
     mysem.optype = 'p';

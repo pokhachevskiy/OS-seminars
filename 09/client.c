@@ -35,6 +35,9 @@ int main(void)
     printf ("Can't find cooperator\n");
     exit(-1);
   }
+  close(fd);
+
+  
   for (i = 0; i < N; i++){
     sprintf(name, "%s%d", pathname, i);
 
