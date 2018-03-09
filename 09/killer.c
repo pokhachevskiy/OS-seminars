@@ -23,7 +23,7 @@ int main(void)
   
   key = ftok(pathname, 0);
   
-  if ((msqid = msgget(key, 0666)) < 0){
+  if ((msqid = msgget(key, 0)) < 0){
     printf("Can\'t get msqid\n");
     exit(-1);
   }
