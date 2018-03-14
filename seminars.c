@@ -479,5 +479,44 @@ while (1) {
 
 
 
+threads
+#include <pthread.h>
+pthread_t pthread_self(void) // return thread id
+gcc ddasf -o kek -lpthread
+
+
+создание 
+int pthread_create(pthread_t *thid, pthread_attr_t *addr = NULL, (void *)(*func)(void *), void *args): 0 - ok, > 0 - error code
+
+зваершение 
+1. return из ассоц. функции
+2. void pthread_exit(void* status);
+3. главный thread завершился - остальные убиты
+
+
+ожидание
+int pthread_join(pthread_t thid, void** status): 0 - ok, > 0 - error code
+
+void* myt (void *arg) {
+
+}
+
+число пи
+площадь четверти круга с радиусом 2
+методом трапеций 
+довольно большое количество точек 
+куча тредов
+разделим примерно на 4 части 
+и каждый тред считает частичную сумму в своей области
+главный суммирует все и выводит число 
+число точек - 100 000 
+при запуске передаем сколько зон, от 1 до 10 
+потребуется параметр каждому среду
+получать частичную сумму 
+
+
+
+
+
 
 
