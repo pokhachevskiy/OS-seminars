@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h> //-lm
+int numberOfthreads = 5;
 
-double result[4];
+
+
+double result[numberOfthreads];
 int a = 0;
 const long N = 100000;
 
@@ -19,19 +22,21 @@ void *mythread(void *dummy)
 {
 
    pthread_t mythid;
-   
+   nThread = (int*)dummy[0];
+   double f0 = 0.0, f1 = 0.0;
    mythid = pthread_self();
-
-   a = a+1;
-
-   printf("Thread %u, Calculation result = %d\n", mythid, a);
+   for (double j = 2 * mythid / n; j < 2 * (mythid + 1)/n; j += 2.0 / N){
+      f1 = sqrt(4 - j*j);
+      result[nThread] += (f1 + f0)/2*(2.0 / N);
+   }
+   printf("Thread %u, Calculation result = %d\n", mythid, result[nThread]);
 
    return NULL;
 }
 
-int main()
+int main(int argc, char* argv)
 {
-   pthread_t thid[3], mythid; 
+   pthread_t thid[numberOfthreads]; 
    int       result[3];
 
    result[0] = pthread_create( &thid[0], (pthread_attr_t *)NULL, mythread, NULL);
