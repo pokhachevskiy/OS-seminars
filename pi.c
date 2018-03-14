@@ -6,7 +6,7 @@ int numberOfthreads = 5;
 
 
 
-double result[numberOfthreads];
+double* result;//[numberOfthreads];
 int a = 0;
 const long N = 100000;
 
@@ -22,7 +22,7 @@ void *mythread(void *dummy)
 {
 
    pthread_t mythid;
-   nThread = (int*)dummy[0];
+   int nThread = *(int*)dummy;
    double f0 = 0.0, f1 = 0.0;
    mythid = pthread_self();
    for (double j = 2 * mythid / n; j < 2 * (mythid + 1)/n; j += 2.0 / N){
@@ -36,40 +36,33 @@ void *mythread(void *dummy)
 
 int main(int argc, char* argv)
 {
-   pthread_t thid[numberOfthreads]; 
-   int       result[3];
+	int res = 0;
+	numberOfthreads = argv[1];
+	pthread_t *thid = (pthread_t*)calloc(numberOfthreads, sizeof(pthread_t)); 
+	result = (double*)calloc(numberOfthreads, sizeof(double));
 
-   result[0] = pthread_create( &thid[0], (pthread_attr_t *)NULL, mythread, NULL);
-   
-   if(result[0] != 0){
-      printf ("Error on thread create, return value = %d\n", result);
-      exit(-1);
-   }   
-   result[1] = pthread_create( &thid[1], (pthread_attr_t *)NULL, mythread, NULL);
-   
-   if(result[1] != 0){
-      printf ("Error on thread create, return value = %d\n", result);
-      exit(-1);
-   }   
-   result[2] = pthread_create( &thid[2], (pthread_attr_t *)NULL, mythread, NULL);
-   
-   if(result[2] != 0){
-      printf ("Error on thread create, return value = %d\n", result);
-      exit(-1);
-   }   
+	for (int j = 0; j < numberOfthreads; j++){
+		int numb = j;
+		res = pthread_create( &thid[i], (pthread_attr_t *)NULL, mythread, &numb);
 
-   
-   printf("Thread created, thid = %u\n", thid);
+		if(res != 0){
+			printf ("Error on thread create, return value = %d\n", result);
+			exit(-1);
+		}   
+	}
 
-   mythid = pthread_self();
-   
-   a = a+1;
-   
-   printf("Thread %u, Calculation result = %d\n", mythid, a);
 
-   pthread_join(thid[0], (void **)NULL);
-   pthread_join(thid[1], (void **)NULL);
-   pthread_join(thid[2], (void **)NULL);
+	// printf("Thread created, thid = %u\n", thid);
 
-   return 0;
+	printf("Thread %u, Calculation result = %d\n", mythid, a);
+
+
+	for (int j = 0; j < numberOfthreads; j++){
+		pthread_join(thid[j], (void **)NULL);
+	}
+	for (int j = 0; j < numberOfthreads; j++){
+		sum += result[j];
+	}
+	printf("%lf \n", sum);
+	return 0;
 }
